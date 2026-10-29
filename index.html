@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kalimba Songs With Chords</title>
+    <style>
+      :root {
+        --bg: #fff8f0;
+        --ink: #49352e;
+        --muted: #8b7166;
+        --accent: #b96f52;
+        --dark: #8e4c35;
+        --line: #f0d9ca;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 10% 10%, #f4cdae55, transparent 30%),
+          radial-gradient(circle at 90% 25%, #e9dab755, transparent 28%),
+          var(--bg);
+        color: var(--ink);
+        font-family: "Trebuchet MS", Arial, sans-serif;
+      }
+
+      .page {
+        position: relative;
+        z-index: 2;
+        width: min(980px, calc(100% - 28px));
+        margin: auto;
+        padding: 38px 0 60px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 7px 13px;
+        margin-bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        background: #ffffffbb;
+        color: var(--dark);
+        font-size: 0.76rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 6vw, 3.4rem);
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+
+      .subtitle {
+        margin: 13px auto 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 26px 0 18px;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .toolbar p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      button {
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition:
+          transform 0.18s,
+          background 0.18s;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      .primary,
+      .save {
+        border: 0;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        padding: 12px 16px;
+      }
+
+      .primary:hover,
+      .save:hover {
+        background: var(--dark);
+      }
+
+      .song-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+        align-items: start;
+      }
+
+      .song-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fffffff0;
+        box-shadow: 0 12px 32px #653f2c18;
+      }
+
+      .song-heading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 15px;
+      }
+
+      .song-open {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        align-items: center;
+        gap: 11px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        padding: 0;
+      }
+
+      .music-icon {
+        display: grid;
+        flex: 0 0 42px;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 13px;
+        background: #fff0e6;
+        font-size: 1.35rem;
+      }
+
+      .song-name {
+        display: block;
+        overflow-wrap: anywhere;
+        font-weight: 800;
+      }
+
+      .song-hint {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+
+      .chevron {
+        color: var(--accent);
+        transition: transform 0.3s;
+      }
+
+      .song-card.open .chevron {
+        transform: rotate(180deg);
+      }
+
+      .actions {
+        display: flex;
+        gap: 5px;
+      }
+
+      .icon-button {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: white;
+        color: var(--muted);
+      }
+
+      .icon-button:hover {
+        background: #fff1e7;
+        color: var(--dark);
+      }
+
+      .song-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+        transition:
+          grid-template-rows 0.38s ease,
+          opacity 0.25s ease;
+      }
+
+      .song-card.open .song-content {
+        grid-template-rows: 1fr;
+        opacity: 1;
+      }
+
+      .content-inner {
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      .content-padding {
+        padding: 0 15px 17px;
+        border-top: 1px solid transparent;
+      }
+
+      .song-card.open .content-padding {
+        border-top-color: var(--line);
+      }
+
+      .label {
+        margin: 15px 0 8px;
+        color: var(--dark);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .chords {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .chords li {
+        min-width: 44px;
+        padding: 8px 10px;
+        border: 1px solid #f0d4c2;
+        border-radius: 9px;
+        background: #fff7f0;
+        color: #75442f;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .notes {
+        width: 100%;
+        min-height: 110px;
+        resize: vertical;
+        padding: 10px 11px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fffdfb;
+        color: var(--ink);
+        font: inherit;
+        line-height: 1.5;
+      }
+
+      .notes-view {
+        min-height: 44px;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fffdfb;
+        color: var(--ink);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .notes-view.empty-notes {
+        color: #aa9387;
+        font-style: italic;
+      }
+
+      .notes-edit-hint {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+
+      input:focus,
+      .notes:focus {
+        outline: 2px solid #b96f5233;
+        border-color: var(--accent);
+      }
+
+      .edit-form {
+        display: grid;
+        gap: 10px;
+        padding: 15px;
+        border-top: 1px solid var(--line);
+        background: #fffaf6;
+      }
+
+      .edit-form[hidden] {
+        display: none;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: white;
+        color: var(--ink);
+        font: inherit;
+      }
+
+      .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .secondary {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: white;
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .empty {
+        grid-column: 1/-1;
+        padding: 30px 18px;
+        border: 1px dashed #dfbda8;
+        border-radius: 18px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      footer {
+        margin-top: 26px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      #kalimba-rain {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        overflow: hidden;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .rain-kalimba {
+        position: absolute;
+        top: -12vh;
+        left: var(--x);
+        width: var(--size);
+        height: var(--size);
+        border: 0;
+        border-radius: 8px;
+        background: transparent
+          url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB4PSI4OCIgeT0iMjQiIHdpZHRoPSIzMzYiIGhlaWdodD0iNDY0IiByeD0iMzIiIGZpbGw9IiM4ZTU0MmMiLz48cmVjdCB4PSI4OCIgeT0iMjQiIHdpZHRoPSIzMzYiIGhlaWdodD0iNDMyIiByeD0iMzIiIGZpbGw9IiM5MjU3MmUiLz48ZyBzdHJva2U9IiNkZGQ5ZDAiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PHBhdGggZD0iTTEyOCA3MnY3MiBNMTYwIDdydjg4IE0xOTIgNzJ2MTEyIE0yMjQgNzJ2MTM2IE0yNTYgNzJ2MTUyIE0yODggNzJ2MTM2IE0zMjAgNzJ2MTEyIE0zNTIgNzJ2ODggTTM4NCA3MnY3MiIvPjwvZz48cmVjdCB4PSIxMTYiIHk9Ijg4IiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjMyIiBmaWxsPSIjZGY5NzBiIi8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMzM2IiByPSI4OCIgZmlsbD0iI2E3NjUyZSIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjMzNiIgcj0iNzIiIGZpbGw9IiM5MjU3MmUiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIzMzYiIHI9IjQ4IiBmaWxsPSIjNTkzNTFiIi8+PC9zdmc+")
+          center/contain no-repeat;
+        opacity: var(--opacity);
+        pointer-events: auto;
+        touch-action: none;
+        cursor: grab;
+        animation: fall var(--duration) linear var(--delay) infinite;
+        will-change: transform;
+        transition: transform 0.3s cubic-bezier(0.08, 0.85, 0.2, 1);
+      }
+
+      .rain-kalimba.dragging {
+        top: 0;
+        left: 0;
+        z-index: 10;
+        width: 54px;
+        height: 54px;
+        opacity: 0.95;
+        cursor: grabbing;
+        animation: none;
+        transform: translate3d(var(--drag-x), var(--drag-y), 0);
+        filter: drop-shadow(0 5px 8px #50301c55);
+      }
+
+      @keyframes fall {
+        from {
+          translate: 0 -12vh;
+          rotate: 0deg;
+        }
+        to {
+          translate: 0 112vh;
+          rotate: 360deg;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          width: min(100% - 22px, 520px);
+          padding-top: 26px;
+        }
+
+        .song-list {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .toolbar {
+          align-items: stretch;
+        }
+
+        .toolbar-actions {
+          width: 100%;
+        }
+
+        .toolbar-actions button {
+          flex: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+
+        .rain-kalimba:not(.dragging) {
+          animation-duration: 40s;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="kalimba-rain" aria-hidden="true"></div>
+
+    <main class="page">
+      <header>
+        <span class="eyebrow">A little music corner</span>
+        <h1>Kalimba Songs With Chords</h1>
+        <p class="subtitle">
+          A little collection of songs and kalimba notes to keep close.
+        </p>
+      </header>
+
+      <div class="toolbar">
+        <p>Open a song to see its chords and notes.</p>
+        <div class="toolbar-actions">
+          <button class="primary" id="addSong" type="button">+ Add song</button>
+          <button class="save" id="exportHtml" type="button">
+            Save songs into HTML
+          </button>
+        </div>
+      </div>
+
+      <section
+        class="song-list"
+        id="songList"
+        aria-label="Song collection"
+      ></section>
+
+      <footer>Made with love and music ♡</footer>
+    </main>
+
+    <script>
+      const EMBEDDED_SONGS = [
+        {
+          id: "when-i-met-you",
+          title: "When I Met You",
+          chords: "C · G · Am · F",
+          notes: "Add your kalimba tabs or song notes here.",
+        },
+        {
+          id: "you-are-my-sunshine",
+          title: "You Are My Sunshine",
+          chords: "C · F · G",
+          notes: "Add your kalimba tabs or song notes here.",
+        },
+      ];
+
+      const STORAGE_KEY = "kalimba-songs-with-chords-v1";
+      const songList = document.getElementById("songList");
+      let songs = loadSongs();
+
+      function makeId() {
+        return (
+          "song-" +
+          Date.now().toString(36) +
+          Math.random().toString(36).slice(2, 8)
+        );
+      }
+
+      function esc(value) {
+        return String(value ?? "").replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[character],
+        );
+      }
+
+      function loadSongs() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (error) {
+          console.warn("Could not load saved songs.", error);
+        }
+
+        return EMBEDDED_SONGS.map((song) => ({ ...song }));
+      }
+
+      function saveSongs() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+        } catch (error) {
+          console.warn("Could not save songs in this browser.", error);
+        }
+      }
+
+      function renderSongs() {
+        if (!songs.length) {
+          songList.innerHTML = `
+          <div class="empty">
+            <p>No songs yet. Add your first song to start your collection.</p>
+          </div>`;
+          return;
+        }
+
+        songList.innerHTML = songs
+          .map(
+            (song) => `
+        <article class="song-card" data-id="${esc(song.id)}">
+          <div class="song-heading">
+            <button class="song-open" type="button" aria-expanded="false">
+              <span class="music-icon" aria-hidden="true">♫</span>
+              <span>
+                <span class="song-name">${esc(song.title || "Untitled song")}</span>
+                <span class="song-hint">Tap to view chords and notes</span>
+              </span>
+              <span class="chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="actions">
+              <button class="icon-button edit-button" type="button" aria-label="Edit song">✎</button>
+              <button class="icon-button delete-button" type="button" aria-label="Delete song">×</button>
+            </div>
+          </div>
+
+          <div class="song-content">
+            <div class="content-inner">
+              <div class="content-padding">
+                <p class="label">Chords</p>
+                <ul class="chords">
+                  ${String(song.chords || "")
+                    .split(/[·,|]/)
+                    .map((chord) => chord.trim())
+                    .filter(Boolean)
+                    .map((chord) => `<li>${esc(chord)}</li>`)
+                    .join("")}
+                </ul>
+
+                <p class="label">Notes / kalimba tabs</p>
+                <div class="notes-view ${song.notes ? "" : "empty-notes"}">${esc(song.notes || "No notes added yet.")}</div>
+                <p class="notes-edit-hint">Use the edit button to add or change notes.</p>
+              </div>
+            </div>
+          </div>
+
+          <form class="edit-form" hidden>
+            <label class="field">Song / table name
+              <input name="title" maxlength="100" value="${esc(song.title || "")}" placeholder="Enter song name" required>
+            </label>
+            <label class="field">Chords (separate with a dot, comma, or |)
+              <input name="chords" maxlength="500" value="${esc(song.chords || "")}" placeholder="C · G · Am · F">
+            </label>
+            <label class="field">Notes / kalimba tabs
+              <textarea class="notes" name="notes" placeholder="Add kalimba notes, tabs, lyrics, or reminders...">${esc(song.notes || "")}</textarea>
+            </label>
+            <div class="form-actions">
+              <button class="save" type="submit">Save changes</button>
+              <button class="secondary cancel-edit" type="button">Cancel</button>
+            </div>
+          </form>
+        </article>
+      `,
+          )
+          .join("");
+      }
+
+      songList.addEventListener("click", (event) => {
+        const card = event.target.closest(".song-card");
+        if (!card) return;
+
+        const song = songs.find((item) => item.id === card.dataset.id);
+        if (!song) return;
+
+        if (event.target.closest(".song-open")) {
+          const open = !card.classList.contains("open");
+          card.classList.toggle("open", open);
+          card
+            .querySelector(".song-open")
+            .setAttribute("aria-expanded", String(open));
+        }
+
+        if (event.target.closest(".edit-button")) {
+          const form = card.querySelector(".edit-form");
+          form.hidden = !form.hidden;
+          if (!form.hidden) form.querySelector('[name="title"]').focus();
+        }
+
+        if (event.target.closest(".cancel-edit")) {
+          card.querySelector(".edit-form").hidden = true;
+        }
+
+        if (
+          event.target.closest(".delete-button") &&
+          confirm(`Delete "${song.title || "Untitled song"}"?`)
+        ) {
+          songs = songs.filter((item) => item.id !== song.id);
+          saveSongs();
+          renderSongs();
+        }
+      });
+
+      document.getElementById("exportHtml").addEventListener("click", () => {
+        const embeddedData = JSON.stringify(songs, null, 2).replace(
+          /<\/script/gi,
+          "<\\/script",
+        );
+        const html =
+          "<!doctype html>\n" +
+          document.documentElement.outerHTML.replace(
+            /const EMBEDDED_SONGS = \[[\s\S]*?\];/,
+            "const EMBEDDED_SONGS = " + embeddedData + ";",
+          );
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "kalimba-songs-with-chords.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        alert(
+          "Updated HTML downloaded! Send this file to your girlfriend or publish it so you both see the same embedded songs and notes.",
+        );
+      });
+
+      songList.addEventListener("submit", (event) => {
+        if (!event.target.matches(".edit-form")) return;
+        event.preventDefault();
+
+        const card = event.target.closest(".song-card");
+        const song = songs.find((item) => item.id === card.dataset.id);
+        if (!song) return;
+
+        const data = new FormData(event.target);
+        song.title = String(data.get("title") || "").trim() || "Untitled song";
+        song.chords = String(data.get("chords") || "").trim();
+        song.notes = String(data.get("notes") || "");
+
+        saveSongs();
+        renderSongs();
+
+        const updated = songList.querySelector(
+          `[data-id="${CSS.escape(song.id)}"]`,
+        );
+        if (updated) {
+          updated.classList.add("open");
+          updated
+            .querySelector(".song-open")
+            .setAttribute("aria-expanded", "true");
+        }
+      });
+
+      document.getElementById("addSong").addEventListener("click", () => {
+        const song = {
+          id: makeId(),
+          title: "New Song",
+          chords: "C · G · Am · F",
+          notes: "",
+        };
+
+        songs.unshift(song);
+        saveSongs();
+        renderSongs();
+
+        const card = songList.querySelector(
+          `[data-id="${CSS.escape(song.id)}"]`,
+        );
+        card.classList.add("open");
+        card.querySelector(".song-open").setAttribute("aria-expanded", "true");
+
+        const form = card.querySelector(".edit-form");
+        form.hidden = false;
+        form.querySelector('[name="title"]').select();
+        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      renderSongs();
+
+      const rain = document.getElementById("kalimba-rain");
+      let held = null;
+      let offsetX = 0;
+      let offsetY = 0;
+      let pointer = { x: -1000, y: -1000 };
+
+      function createRain() {
+        rain.innerHTML = "";
+        const count = matchMedia("(max-width:640px)").matches ? 16 : 28;
+
+        for (let i = 0; i < count; i++) {
+          const k = document.createElement("span");
+          k.className = "rain-kalimba";
+          k.setAttribute("role", "img");
+          k.setAttribute("aria-label", "Hold and drag this kalimba");
+
+          k.style.setProperty("--x", Math.random() * 96 + "%");
+          k.style.setProperty("--size", 19 + Math.random() * 14 + "px");
+          k.style.setProperty("--mobile-size", 17 + Math.random() * 8 + "px");
+          k.style.setProperty("--opacity", 0.16 + Math.random() * 0.23);
+          k.style.setProperty("--duration", 10 + Math.random() * 15 + "s");
+          k.style.setProperty("--delay", -Math.random() * 25 + "s");
+
+          rain.appendChild(k);
+          k.addEventListener("pointerdown", startDrag);
+          k.addEventListener("pointermove", moveDrag);
+          k.addEventListener("pointerup", endDrag);
+          k.addEventListener("pointercancel", endDrag);
+        }
+      }
+
+      function startDrag(e) {
+        e.preventDefault();
+        if (held) return;
+
+        held = e.currentTarget;
+        const r = held.getBoundingClientRect();
+
+        offsetX = e.clientX - r.left;
+        offsetY = e.clientY - r.top;
+
+        held.classList.add("dragging");
+        held.style.setProperty("--drag-x", e.clientX - offsetX + "px");
+        held.style.setProperty("--drag-y", e.clientY - offsetY + "px");
+
+        held.setPointerCapture(e.pointerId);
+        pointer = { x: e.clientX, y: e.clientY };
+
+        repel();
+      }
+
+      function moveDrag(e) {
+        if (!held || e.currentTarget !== held) return;
+
+        e.preventDefault();
+        pointer = { x: e.clientX, y: e.clientY };
+
+        held.style.setProperty("--drag-x", e.clientX - offsetX + "px");
+        held.style.setProperty("--drag-y", e.clientY - offsetY + "px");
+
+        repel();
+      }
+
+      function endDrag(e) {
+        if (!held || e.currentTarget !== held) return;
+
+        const k = held;
+        k.classList.remove("dragging");
+        k.style.removeProperty("--drag-x");
+        k.style.removeProperty("--drag-y");
+        k.style.setProperty("--x", Math.random() * 96 + "%");
+
+        k.style.animation = "none";
+        void k.offsetHeight;
+        k.style.animation = "";
+        k.style.setProperty("--delay", "0s");
+
+        held = null;
+        pointer = { x: -1000, y: -1000 };
+
+        repel();
+      }
+
+      function repel() {
+        const radius = 175;
+
+        rain.querySelectorAll(".rain-kalimba:not(.dragging)").forEach((k) => {
+          const rect = k.getBoundingClientRect();
+          const computed = getComputedStyle(k);
+          const transform = computed.transform;
+          const matrix =
+            transform === "none" ? null : new DOMMatrixReadOnly(transform);
+
+          const translateX = matrix ? matrix.m41 : 0;
+          const translateY = matrix ? matrix.m42 : 0;
+
+          const centerX = rect.left + rect.width / 2 - translateX;
+          const centerY = rect.top + rect.height / 2 - translateY;
+
+          const dx = centerX - pointer.x;
+          const dy = centerY - pointer.y;
+          const distance = Math.hypot(dx, dy);
+
+          clearTimeout(k._repelTimer);
+
+          if (distance >= radius) {
+            if (k._repelled) {
+              k._repelled = false;
+              k.style.transform = "translate3d(0,0,0) rotate(0deg) scale(1)";
+            }
+            return;
+          }
+
+          if (k._repelled) return;
+          k._repelled = true;
+
+          let directionX = dx;
+          let directionY = dy;
+
+          if (distance < 1) {
+            directionX = Math.random() - 0.5;
+            directionY = Math.random() - 0.5;
+          }
+
+          const length = Math.hypot(directionX, directionY) || 1;
+          const strength = 90 + (1 - distance / radius) * 115;
+          const moveX = (directionX / length) * strength;
+          const moveY = (directionY / length) * strength;
+          const rotation = directionX >= 0 ? 22 : -22;
+
+          k.style.transition = "none";
+          k.style.transform = "translate3d(0,0,0) rotate(0deg) scale(1)";
+          void k.offsetWidth;
+
+          k.style.transition = "transform .3s cubic-bezier(.08,.85,.2,1)";
+          k.style.transform = `translate3d(${moveX}px,${moveY}px,0) rotate(${rotation}deg) scale(1.08)`;
+
+          k._repelTimer = setTimeout(() => {
+            k.style.transition = "transform .45s cubic-bezier(.2,.7,.3,1)";
+            k.style.transform = "translate3d(0,0,0) rotate(0deg) scale(1)";
+            k._repelled = false;
+          }, 350);
+        });
+      }
+
+      createRain();
+
+      window.addEventListener("resize", () => {
+        const count = matchMedia("(max-width:640px)").matches ? 16 : 28;
+
+        if (count !== rain.children.length) {
+          held = null;
+          createRain();
+        }
+      });
+    </script>
+  </body>
+</html>
